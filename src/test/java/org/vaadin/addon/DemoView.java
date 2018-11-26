@@ -3,8 +3,6 @@ package org.vaadin.addon;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import java.awt.Color;
-import java.awt.GradientPaint;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -23,13 +21,16 @@ import org.jfree.data.xy.DefaultTableXYDataset;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYSeries;
 
+import java.awt.*;
+
 @Route
 public class DemoView extends VerticalLayout {
 
     public DemoView() {
 
-        JFreeChart chart = createchart(createDataset());
-        add(new JFreeChartWrapper(chart));
+        JFreeChart chart = createChart(createDataset());
+        JFreeChartWrapper wrapper = new JFreeChartWrapper(chart);
+        add(wrapper);
 
         add(getLevelChart());
 
@@ -88,7 +89,7 @@ public class DemoView extends VerticalLayout {
      *
      * @return The chart.
      */
-    private static JFreeChart createchart(CategoryDataset dataset) {
+    private static JFreeChart createChart(CategoryDataset dataset) {
 
         // create the chart...
         JFreeChart chart = ChartFactory.createBarChart("Bar Chart Demo 1", // chart

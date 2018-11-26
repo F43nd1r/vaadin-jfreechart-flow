@@ -4,82 +4,52 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
-import java.awt.Rectangle;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import com.vaadin.flow.server.StreamResourceWriter;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.jfree.chart.JFreeChart;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.awt.*;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+
 /**
- * 
  * @author lukas
  * @since 11.10.18
  */
 @Tag("object")
 public class JFreeChartWrapper extends Component implements HasSize, HasStyle {
 
-    // 809x 500 ~g olden ratio
+    // 809x 500 ~golden ratio
     private static final int DEFAULT_WIDTH = 809;
     private static final int DEFAULT_HEIGHT = 500;
 
-    private final JFreeChart chart;
+    private JFreeChart chart;
     private int graphWidthInPixels = -1;
     private int graphHeightInPixels = -1;
     private String aspectRatio = "none";
 
-    public JFreeChartWrapper(JFreeChart chartToBeWrapped) {
-        this.chart = chartToBeWrapped;
+    public JFreeChartWrapper() {
         getElement().setAttribute("type", "image/svg+xml");
-        //getElement().getStyle().set("display", "block");
-        getElement().setAttribute("data", new StreamResource("chart" + System.currentTimeMillis() + ".svg", (InputStreamFactory) () -> {
-            int width = getGraphWidth();
-            int height = getGraphHeight();
-            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder;
-            try {
-                docBuilder = docBuilderFactory.newDocumentBuilder();
-            } catch (ParserConfigurationException e1) {
-                throw new RuntimeException(e1);
-            }
-            Document document = docBuilder.newDocument();
-            Element svgelem = document.createElement("svg");
-            document.appendChild(svgelem);
-            // Create an instance of the SVG Generator
-            SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+    }
 
-            // draw the chart in the SVG generator
-            chart.draw(svgGenerator, new Rectangle(width, height));
-            Element el = svgGenerator.getRoot();
-            el.setAttributeNS(null, "viewBox", "0 0 " + width + " " + height + "");
-            el.setAttributeNS(null, "style", "width:100%;height:100%;");
-            el.setAttributeNS(null, "preserveAspectRatio", getSvgAspectRatio());
-            // Write svg to buffer
-            try (ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    Writer out = new OutputStreamWriter(stream, StandardCharsets.UTF_8)) {
-                /*
-                 * don't use css, FF3 can'd deal with the result perfectly: wrong font sizes
-                 */
-                boolean useCSS = false;
-                svgGenerator.stream(el, out, useCSS, false);
-                stream.flush();
-                return new ByteArrayInputStream(stream.toByteArray());
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            return null;
-        }));
+    public JFreeChartWrapper(JFreeChart chartToBeWrapped) {
+        this();
+        setChart(chartToBeWrapped);
+    }
+
+    public JFreeChart getChart() {
+        return chart;
+    }
+
+    public void setChart(JFreeChart chart) {
+        this.chart = chart;
+        getElement().setAttribute("data", getStreamResource());
     }
 
     /**
@@ -152,4 +122,43 @@ public class JFreeChartWrapper extends Component implements HasSize, HasStyle {
     public void setSvgAspectRatio(String svgAspectRatioSetting) {
         aspectRatio = svgAspectRatioSetting;
     }
+
+    private StreamResource getStreamResource() {
+        return new StreamResource("chart.svg", (StreamResourceWriter) (stream, session) -> {
+            if (chart != null) {
+                session.lock();
+                try (Writer writer = new OutputStreamWriter(stream)) {
+                    int width = getGraphWidth();
+                    int height = getGraphHeight();
+                    DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder docBuilder;
+                    try {
+                        docBuilder = docBuilderFactory.newDocumentBuilder();
+                    } catch (ParserConfigurationException e1) {
+                        throw new RuntimeException(e1);
+                    }
+                    Document document = docBuilder.newDocument();
+                    Element svgelem = document.createElement("svg");
+                    document.appendChild(svgelem);
+                    // Create an instance of the SVG Generator
+                    SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+
+                    // draw the chart in the SVG generator
+                    chart.draw(svgGenerator, new Rectangle(width, height));
+                    Element el = svgGenerator.getRoot();
+                    el.setAttributeNS(null, "viewBox", "0 0 " + width + " " + height + "");
+                    el.setAttributeNS(null, "style", "width:100%;height:100%;");
+                    el.setAttributeNS(null, "preserveAspectRatio", getSvgAspectRatio());
+                    /*
+                     * don't use css, FF3 can'd deal with the result perfectly: wrong font sizes
+                     */
+                    boolean useCSS = false;
+                    svgGenerator.stream(el, writer, useCSS, false);
+                } finally {
+                    session.unlock();
+                }
+            }
+        });
+    }
+
 }
