@@ -149,11 +149,7 @@ public class JFreeChartWrapper extends Component implements HasSize, HasStyle {
                     el.setAttributeNS(null, "viewBox", "0 0 " + width + " " + height + "");
                     el.setAttributeNS(null, "style", "width:100%;height:100%;");
                     el.setAttributeNS(null, "preserveAspectRatio", getSvgAspectRatio());
-                    /*
-                     * don't use css, FF3 can'd deal with the result perfectly: wrong font sizes
-                     */
-                    boolean useCSS = false;
-                    svgGenerator.stream(el, writer, useCSS, false);
+                    svgGenerator.stream(el, writer, true, false);
                 } finally {
                     session.unlock();
                 }
