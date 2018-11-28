@@ -95,9 +95,8 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>4.0.1</version>
             <type>jar</type>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
