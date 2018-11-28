@@ -145,8 +145,8 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
                 <configuration>
-                    <releaseProfiles>directory</releaseProfiles>
-                    <releaseProfiles>maven</releaseProfiles>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
                 </configuration>
             </plugin>
         </plugins>
@@ -154,7 +154,7 @@
 
     <profiles>
         <profile>
-            <id>directory</id>
+            <id>release</id>
             <build>
                 <plugins>
                     <plugin>
@@ -175,13 +175,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>maven</id>
-            <build>
-                <plugins>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
