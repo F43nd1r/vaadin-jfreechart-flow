@@ -180,6 +180,9 @@
                                     <goal>single</goal>
                                 </goals>
                                 <phase>install</phase>
+                                <configuration>
+                                    <attach>false</attach>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
