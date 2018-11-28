@@ -1,3 +1,6 @@
+[![Published on Vaadin  Directory](https://img.shields.io/badge/Vaadin%20Directory-published-00b4f0.svg)](https://vaadin.com/directory/component/jfreechart-flow)
+[![Stars on vaadin.com/directory](https://img.shields.io/vaadin-directory/star/jfreechart-flow.svg)](https://vaadin.com/directory/component/jfreechart-flow)
+[![Maven Central](https://img.shields.io/maven-central/v/com.faendir.vaadin/jfreechart-flow.svg)](https://search.maven.org/search?q=com.faendir.vaadin)
 # JFreeChart Flow
 
 Vaadin 10 Java integration for JFreeChart
